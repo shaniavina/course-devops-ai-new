@@ -1,12 +1,15 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const GUEST = new URLSearchParams(window.location.search).get('guest') === '1';
 let auth = null;
+let db = null;
 if (!GUEST) {
   const cfg = await fetch('/firebase-config').then(r => r.json());
   const app = initializeApp(cfg);
   auth = getAuth(app);
+  db = getFirestore(app);
 }
 
 const authView = document.getElementById('auth');
@@ -77,6 +80,14 @@ themeToggle.addEventListener('click', () => {
   setTheme(next);
 });
 
+const saveChat = async (question, answer, error) => {
+  if (GUEST || !auth || !auth.currentUser || !db) return;
+  const uid = auth.currentUser.uid;
+  const col = collection(db, 'users', uid, 'chats');
+  const payload = { question, answer: answer || '', error: error || '', createdAt: serverTimestamp() };
+  try { await addDoc(col, payload); } catch {}
+};
+
 document.getElementById('signin').addEventListener('click', async () => {
   const email = emailInput.value.trim();
   const password = passwordInput.value.trim();
@@ -137,9 +148,12 @@ document.getElementById('chat-form').addEventListener('submit', async (e) => {
     const text = body.answer || body.error || '请求失败';
     wrap.classList.remove('loading');
     await typeText(t, text);
+    await saveChat(q, body.answer || '', body.error || '');
   } catch (err) {
     wrap.classList.remove('loading');
-    t.textContent = '请求错误';
+    const msg = '请求错误';
+    t.textContent = msg;
+    await saveChat(q, '', msg);
   }
   sendBtn.disabled = false;
   sendBtn.textContent = '发送';

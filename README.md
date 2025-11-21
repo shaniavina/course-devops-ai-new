@@ -4,7 +4,7 @@
 
 **技术栈**
 - 后端：`FastAPI`、`LangChain`、`FAISS`、`OpenAI`
-- 前端：`HTML`、`CSS`、`JavaScript`、`Firebase Web SDK`
+- 前端：`HTML`、`CSS`、`JavaScript`、`Firebase Web SDK`、`Firestore`
 - DevOps：`Docker`、`GitHub Actions`、`Railway`
 
 **项目概览**
@@ -48,6 +48,22 @@
 - `GET /firebase-config`（`app.py:75-83`）：返回前端初始化所需的 Firebase 配置。
 - `POST /chat`（`app.py:85-94`）：请求体 `{"question": "..."}`，返回 `{"answer": "..."}` 或 `{"error": "..."}`。
 - 静态资源：`/static/*`（`app.py:96`）。
+
+**聊天记录持久化（Firestore）**
+- 启用 Cloud Firestore：在 Firebase 控制台创建项目与 Web 应用，进入 `Firestore Database` 开启数据库（生产模式）。
+- 安全规则示例：仅允许用户读写自己的聊天记录。
+  ```
+  rules_version = '2';
+  service cloud.firestore {
+    match /databases/{database}/documents {
+      match /users/{uid}/chats/{doc} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+  }
+  ```
+- 写入位置：`users/{uid}/chats`；字段：`question`、`answer`、`error`、`createdAt`。
+- 游客模式（`/ui?guest=1`）不写入。
 
 **CI/CD（GitHub Actions → Railway）**
 - 工作流：`.github/workflows/main.yml:1-37`，触发 `push` 到 `main`
