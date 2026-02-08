@@ -45,7 +45,7 @@ jobs:
       - name: Verify Railway auth
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway status
+        run: railway whoami
       - name: Deploy
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
