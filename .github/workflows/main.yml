@@ -42,6 +42,11 @@ jobs:
     container: ghcr.io/railwayapp/cli:latest
     steps:
       - uses: actions/checkout@v4
+      - name: Debug token length
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          echo "RAILWAY_TOKEN length: ${#RAILWAY_TOKEN}"
       - name: Verify Railway auth
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
