@@ -33,8 +33,8 @@ jobs:
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          test -n "$RAILWAY_TOKEN" || (echo "RAILWAY_TOKEN is empty" && exit 1)
-          echo "RAILWAY_TOKEN length: ${#RAILWAY_TOKEN}"
+          test -n "$RAILWAY_TOKEN" || (echo "RAILWAY_TOKEN is EMPTY" && exit 1)
+          echo "RAILWAY_TOKEN is set"
 
   deploy:
     needs: build-test
