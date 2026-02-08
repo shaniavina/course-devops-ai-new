@@ -49,4 +49,6 @@ jobs:
       - name: Deploy
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway up --service=course-devops-ai-new
+        run: railway link ${{ secrets.RAILWAY_PROJECT_ID }}
+             railway up --service=${{ secrets.RAILWAY_SERVICE_ID }}
+
